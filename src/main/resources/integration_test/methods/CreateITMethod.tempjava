@@ -1,0 +1,21 @@
+@Test
+@Transactional
+public void [methodName]() throws Exception {
+        /* [warningMessage] */
+        int databaseSizeBeforeCreate = [repositoryVariable].findAll().size();
+        // Create the [entity]
+        [entity] [entityVariable] = new [entity]();
+        [sets]
+
+        restMockMvc.perform([requestType]("[requestRoute]")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(TestUtil.convertObjectToJsonBytes([entityVariable])))
+        .andExpect(status().isCreated());
+
+        // Validate the [entity] in the database
+        List<[entity]> [entityVariable]List = [repositoryVariable].findAll();
+        assertThat([entityVariable]List).hasSize(databaseSizeBeforeCreate + 1);
+        [entity] test[entity] = [entityVariable]List.get([entityVariable]List.size() - 1);
+
+        [asserts]
+        }

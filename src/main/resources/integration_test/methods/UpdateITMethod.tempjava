@@ -1,0 +1,34 @@
+    @Test
+    @Transactional
+    public void [methodName]() throws Exception {
+        /* [warningMessage] */
+        // Create the [entity]
+        [entity] [entityVariable] = new [entity]();
+[sets]
+        // Initialize the database
+        [repositoryVariable].saveAndFlush([entityVariable]);
+
+        int databaseSizeBeforeUpdate = [repositoryVariable].findAll().size();
+
+        // Update the [entity]
+        [entity] updated[entity] = [repositoryVariable].findById([entityVariable].getId()).get();
+        // Disconnect from session so that the updates on updated[entity] are not directly saved in db
+        entityManager.detach(updated[entity]);
+
+[updates]
+
+        [dto] [dtoVariable] = [mapperVariable].toDto(updated[entity]);
+
+        restMockMvc.perform([requestType]("[requestRoute]")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(TestUtil.convertObjectToJsonBytes([dtoVariable])))
+        .andExpect(status().isOk());
+
+        // Validate the [entity] in the database
+        List<[entity]> [entityVariable]List = [repositoryVariable].findAll();
+        assertThat([entityVariable]List).hasSize(databaseSizeBeforeUpdate);
+        [entity] test[entity] = [entityVariable]List.get([entityVariable]List.size() - 1);
+
+[asserts]
+        }
+

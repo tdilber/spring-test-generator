@@ -1,0 +1,18 @@
+@Test
+@Transactional
+public void [methodName]() throws Exception {
+        /* [warningMessage] */
+        int databaseSizeBeforeCreate = [repositoryVariable].findAll().size();
+        // Create the [entity]
+        [entity] [entityVariable] = new [entity]();
+        [sets]
+
+        // Initialize the database
+        [repositoryVariable].saveAndFlush([entityVariable]);
+
+        // Get the [entity]
+        restMockMvc.perform([requestType]("[requestRoute]", [entityVariable].getId()))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+[expects]
+        }

@@ -1,0 +1,22 @@
+@Test
+@Transactional
+public void [methodName]() throws Exception {
+        /* [warningMessage] */
+        // Create the [entity]
+        [entity] [entityVariable] = new [entity]();
+[sets]
+
+        // Initialize the database
+        [repositoryVariable].saveAndFlush([entityVariable]);
+
+        int databaseSizeBeforeDelete = [repositoryVariable].findAll().size();
+
+        // Delete the [entity]
+        restMockMvc.perform([requestType]("[requestRoute]", [entityVariable].getId())
+        .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNoContent());
+
+        // Validate the database contains one less item
+        List<[entity]> [entityVariable]List = [repositoryVariable].findAll();
+        assertThat([entityVariable]List).hasSize(databaseSizeBeforeDelete - 1);
+}
