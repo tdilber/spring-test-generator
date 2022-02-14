@@ -20,4 +20,6 @@ public @interface IntegrationTestGenerator {
     Class mainClass();
 
     String outputPath();
+
+    boolean deleteGenerationDirectory() default false;
 }

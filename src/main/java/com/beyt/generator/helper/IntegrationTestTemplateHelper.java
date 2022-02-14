@@ -16,7 +16,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -27,7 +29,7 @@ public final class IntegrationTestTemplateHelper {
     private IntegrationTestTemplateHelper() {
     }
 
-    public static void checkFolderIsEmpty(String filePath) {
+    public static void checkFolderIsEmptyOrDeleteAll(String filePath, boolean deleteAll) {
         File directory = new File(filePath);
         Path path = Paths.get(filePath);
         if (!Files.exists(path)) {
@@ -39,8 +41,12 @@ public final class IntegrationTestTemplateHelper {
             directory.mkdirs();
         }
 
-        if (directory.listFiles().length > 0) {
-            throw new TestIntegrationFolderNotEmptyException("Selected test folder not empty (\"" + directory.getAbsolutePath() + "\")! Please neither \"Clear this Folder\" nor \"delete " + IntegrationTestGenerator.class.getSimpleName() + " annotation!\"");
+        if (Objects.nonNull(directory.listFiles()) && directory.listFiles().length > 0) {
+            if (deleteAll) {
+                Arrays.stream(directory.listFiles()).forEach(File::delete);
+            } else {
+                throw new TestIntegrationFolderNotEmptyException("Selected test folder not empty (\"" + directory.getAbsolutePath() + "\")! Please neither \"Clear this Folder\" nor \"delete " + IntegrationTestGenerator.class.getSimpleName() + " annotation!\"");
+            }
         }
 
     }
