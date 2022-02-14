@@ -1,0 +1,19 @@
+@Test
+@Transactional
+// TODO authorization
+public void [methodName]() throws Exception {
+        /* [warningMessage] */
+[sets]
+
+        restMockMvc.perform([requestType]("[requestRoute]")
+[params]
+[headers]
+[requestBody]
+        .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+
+        // Validate the in the database
+        // List<entity> entityVariableList = repositoryVariable.findAll();
+
+[asserts]
+        }
