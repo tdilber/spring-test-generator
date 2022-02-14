@@ -24,6 +24,11 @@ public class UpdateEntityDTOMethodCreator extends BaseMethodCreator {
     }
 
     @Override
+    public Integer priority() {
+        return 5;
+    }
+
+    @Override
     public String name() {
         return "Update Entity(DTO)";
     }

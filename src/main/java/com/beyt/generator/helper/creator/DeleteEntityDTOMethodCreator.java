@@ -24,6 +24,11 @@ public class DeleteEntityDTOMethodCreator extends BaseMethodCreator {
     }
 
     @Override
+    public Integer priority() {
+        return 1;
+    }
+
+    @Override
     public String name() {
         return "Delete Entity(DTO)";
     }

@@ -27,6 +27,11 @@ public class CreateEntityMethodCreator extends BaseMethodCreator {
     }
 
     @Override
+    public Integer priority() {
+        return 1;
+    }
+
+    @Override
     public String name() {
         return "Create Entity";
     }

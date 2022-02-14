@@ -9,6 +9,8 @@ import java.util.Set;
  * Created by tdilber at 11/17/2020
  */
 public interface IMethodCreator {
+    Integer priority();
+
     String name();
 
     String templatePath();

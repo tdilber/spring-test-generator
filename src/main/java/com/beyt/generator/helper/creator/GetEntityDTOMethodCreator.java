@@ -23,6 +23,11 @@ public class GetEntityDTOMethodCreator extends BaseMethodCreator {
     }
 
     @Override
+    public Integer priority() {
+        return 4;
+    }
+
+    @Override
     public String name() {
         return "Get Entity(DTO)";
     }
