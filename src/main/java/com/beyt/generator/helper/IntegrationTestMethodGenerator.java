@@ -9,10 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by tdilber at 11/17/2020
@@ -32,6 +29,8 @@ public class IntegrationTestMethodGenerator {
         methodCreators.add(new DeleteEntityDTOMethodCreator(integrationTestGenerator));
         methodCreators.add(new GetEntityDTOMethodCreator(integrationTestGenerator));
         methodCreators.add(new GetAllEntityDTOMethodCreator(integrationTestGenerator));
+        methodCreators.add(new GenericGetMethodCreator(integrationTestGenerator));
+        methodCreators.sort(Comparator.comparing(IMethodCreator::priority));
     }
 
     public @Nullable

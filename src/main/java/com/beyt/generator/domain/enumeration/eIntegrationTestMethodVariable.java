@@ -16,6 +16,9 @@ public enum eIntegrationTestMethodVariable implements ITemplateVariableEnum {
     Sets("[sets]"),
     Updates("[updates]"),
     Asserts("[asserts]"),
+    Headers("[headers]"),
+    RequestBody("[requestBody]"),
+    Params("[params]"),
     Expects("[expects]"),
     WarningMessage("[warningMessage]");
 
