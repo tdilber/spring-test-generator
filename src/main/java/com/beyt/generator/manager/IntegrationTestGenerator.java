@@ -70,7 +70,7 @@ public class IntegrationTestGenerator {
     private void postConstruct() {
         Map<RequestMappingInfo, HandlerMethod> requestMappingInfoHandlerMethodMap = requestMappingHandlerMapping.getHandlerMethods();
         com.beyt.generator.annotation.IntegrationTestGenerator integrationTestGenerator = ApplicationContextUtil.getFirstAnnotation(applicationContext, com.beyt.generator.annotation.IntegrationTestGenerator.class);
-        IntegrationTestTemplateHelper.checkFolderIsEmpty(integrationTestGenerator.outputPath());
+        IntegrationTestTemplateHelper.checkFolderIsEmptyOrDeleteAll(integrationTestGenerator.outputPath(), integrationTestGenerator.deleteGenerationDirectory());
         generateTestUtilClass(integrationTestGenerator);
         generateIntegrationTestClasses(requestMappingInfoHandlerMethodMap, integrationTestGenerator);
         log.info("End Of Integration Test Generate Process");
@@ -95,6 +95,7 @@ public class IntegrationTestGenerator {
         clearVariableMap();
         fillDefaultVariables(integrationTestGenerator, resourceClass, importClasses, autowireClassMap);
         variableMap.get(eIntegrationTestVariable.CLASSNAME).append(resourceClass.getSimpleName());
+        Map<String, Integer> methodNameUniquenessMap = new HashMap<>();
         requestMappingInfoHandlerMethodMap.forEach((requestMappingInfo, handlerMethod) -> {
             if (!handlerMethod.getBeanType().equals(resourceClass)) {
                 return;
@@ -105,7 +106,8 @@ public class IntegrationTestGenerator {
                 createAutowiredClassesAndClassFieldStorage(autowireClassMap, handlerMethod, resourceClass);
             }
             variableMap.get(eIntegrationTestVariable.BEFORE_EACH);
-            variableMap.get(eIntegrationTestVariable.CLASS_BODY).append(generateTestMethod(requestMappingInfo, handlerMethod, importClasses, resourceClass));
+            String methodNamePostFix = prepareMethodNamePostfix(methodNameUniquenessMap, handlerMethod);
+            variableMap.get(eIntegrationTestVariable.CLASS_BODY).append(generateTestMethod(requestMappingInfo, handlerMethod, importClasses, resourceClass, methodNamePostFix));
         });
 
         importClasses.addAll(autowireClassMap.keySet());
@@ -116,6 +118,13 @@ public class IntegrationTestGenerator {
         IntegrationTestTemplateHelper.writeFile(result, resourceClass.getSimpleName() + "IT.java", integrationTestGenerator.outputPath());
         log.info(result);
         log.info("END " + resourceClass.getName());
+    }
+
+    private String prepareMethodNamePostfix(Map<String, Integer> methodNameUniquenessMap, HandlerMethod handlerMethod) {
+        methodNameUniquenessMap.computeIfPresent(handlerMethod.getMethod().getName(), (key, value) -> ++value);
+        methodNameUniquenessMap.putIfAbsent(handlerMethod.getMethod().getName(), 0);
+        Integer integer = methodNameUniquenessMap.get(handlerMethod.getMethod().getName());
+        return integer == 0 ? "" : integer.toString();
     }
 
     private void generateTestUtilClass(com.beyt.generator.annotation.IntegrationTestGenerator integrationTestGenerator) {
@@ -186,10 +195,10 @@ public class IntegrationTestGenerator {
         }
     }
 
-    public String generateTestMethod(RequestMappingInfo requestMappingInfo, HandlerMethod handlerMethod, Set<Class<?>> importClasses, Class<?> resourceClass) {
+    public String generateTestMethod(RequestMappingInfo requestMappingInfo, HandlerMethod handlerMethod, Set<Class<?>> importClasses, Class<?> resourceClass, String methodNamePostFix) {
         String result = null;
         Map<eIntegrationTestMethodVariable, String> templateValueMap = new HashMap<>();
-        templateValueMap.put(eIntegrationTestMethodVariable.MethodName, handlerMethod.getMethod().getName());
+        templateValueMap.put(eIntegrationTestMethodVariable.MethodName, handlerMethod.getMethod().getName() + methodNamePostFix);
         // Create Method (EntityDTO dto)
         try {
             result = integrationTestMethodGenerator.methodCreate(resourceClass, requestMappingInfo, handlerMethod, importClasses);
