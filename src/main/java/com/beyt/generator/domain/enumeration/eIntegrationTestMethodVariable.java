@@ -5,6 +5,7 @@ package com.beyt.generator.domain.enumeration;
  */
 public enum eIntegrationTestMethodVariable implements ITemplateVariableEnum {
     MethodName("[methodName]"),
+    MethodReturnType("[methodReturnType]"),
     Entity("[entity]"),
     EntityVariable("[entityVariable]"),
     RepositoryVariable("[repositoryVariable]"),
