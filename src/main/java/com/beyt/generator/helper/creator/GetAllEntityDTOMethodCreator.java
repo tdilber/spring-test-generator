@@ -49,9 +49,7 @@ public class GetAllEntityDTOMethodCreator extends BaseMethodCreator {
     }
 
     @Override
-    public String createMethod(Class<?> resourceClass, RequestMappingInfo requestMappingInfo, HandlerMethod handlerMethod, Set<Class<?>> importClasses) throws Exception {
-        Map<eIntegrationTestMethodVariable, String> templateValueMap = new HashMap<>();
-        templateValueMap.put(eIntegrationTestMethodVariable.MethodName, handlerMethod.getMethod().getName());
+    public String createMethod(Class<?> resourceClass, RequestMappingInfo requestMappingInfo, HandlerMethod handlerMethod, Set<Class<?>> importClasses, Map<ITemplateVariableEnum, CharSequence> templateValueMap, CreateProperties createProperties) throws Exception {
         Class<?> entityClass = integrationTestGenerator.getResourceFieldStorage().get(resourceClass).get(IntegrationTestGenerator.eUsageClassType.Entity).getFirst();
         importClasses.add(entityClass);
         templateValueMap.put(eIntegrationTestMethodVariable.RequestType, requestMappingInfo.getMethodsCondition().getMethods().iterator().next().name().toLowerCase());

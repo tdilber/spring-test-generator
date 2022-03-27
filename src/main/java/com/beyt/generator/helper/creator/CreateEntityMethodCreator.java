@@ -54,22 +54,16 @@ public class CreateEntityMethodCreator extends BaseMethodCreator {
     }
 
     @Override
-    public String createMethod(Class<?> resourceClass, RequestMappingInfo requestMappingInfo, HandlerMethod handlerMethod, Set<Class<?>> importClasses) throws Exception {
-        Map<eIntegrationTestMethodVariable, String> templateValueMap = new HashMap<>();
+    public String createMethod(Class<?> resourceClass, RequestMappingInfo requestMappingInfo, HandlerMethod handlerMethod, Set<Class<?>> importClasses, Map<ITemplateVariableEnum, CharSequence> templateValueMap, CreateProperties createProperties) throws Exception {
         Class<?> dtoClass = handlerMethod.getMethod().getParameterTypes()[0];
-        templateValueMap.put(eIntegrationTestMethodVariable.MethodName, handlerMethod.getMethod().getName());
         Map<IntegrationTestGenerator.eUsageClassType, Pair<Class<?>, String>> usageClassTypes = integrationTestGenerator.getClassFieldStorage().get(dtoClass);
         Class<?> entityClass = usageClassTypes.get(IntegrationTestGenerator.eUsageClassType.Entity).getFirst();
         importClasses.add(entityClass);
-        importClasses.add(usageClassTypes.get(IntegrationTestGenerator.eUsageClassType.EntityDto).getFirst());
         templateValueMap.put(eIntegrationTestMethodVariable.RequestType, requestMappingInfo.getMethodsCondition().getMethods().iterator().next().name().toLowerCase());
         templateValueMap.put(eIntegrationTestMethodVariable.RequestRoute, requestMappingInfo.getPatternsCondition().getPatterns().iterator().next());
         templateValueMap.put(eIntegrationTestMethodVariable.Entity, entityClass.getSimpleName());
         templateValueMap.put(eIntegrationTestMethodVariable.EntityVariable, usageClassTypes.get(IntegrationTestGenerator.eUsageClassType.Entity).getSecond());
         templateValueMap.put(eIntegrationTestMethodVariable.RepositoryVariable, usageClassTypes.get(IntegrationTestGenerator.eUsageClassType.Repository).getSecond());
-        templateValueMap.put(eIntegrationTestMethodVariable.DTO, usageClassTypes.get(IntegrationTestGenerator.eUsageClassType.EntityDto).getFirst().getSimpleName());
-        templateValueMap.put(eIntegrationTestMethodVariable.DtoVariable, usageClassTypes.get(IntegrationTestGenerator.eUsageClassType.EntityDto).getSecond());
-        templateValueMap.put(eIntegrationTestMethodVariable.MapperVariable, usageClassTypes.get(IntegrationTestGenerator.eUsageClassType.ObjectMapper).getSecond());
 
 
         Object entityObject = entityClass.getDeclaredConstructor().newInstance();

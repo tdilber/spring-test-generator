@@ -1,5 +1,6 @@
 package com.beyt.generator.helper;
 
+import com.beyt.generator.domain.enumeration.ITemplateVariableEnum;
 import com.beyt.generator.helper.creator.*;
 import com.beyt.generator.manager.IntegrationTestGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -29,16 +30,16 @@ public class IntegrationTestMethodGenerator {
         methodCreators.add(new DeleteEntityDTOMethodCreator(integrationTestGenerator));
         methodCreators.add(new GetEntityDTOMethodCreator(integrationTestGenerator));
         methodCreators.add(new GetAllEntityDTOMethodCreator(integrationTestGenerator));
-        methodCreators.add(new GenericGetMethodCreator(integrationTestGenerator));
+        methodCreators.add(new GenericMethodCreator(integrationTestGenerator));
         methodCreators.sort(Comparator.comparing(IMethodCreator::priority));
     }
 
     public @Nullable
-    String methodCreate(Class<?> resourceClass, RequestMappingInfo requestMappingInfo, HandlerMethod handlerMethod, Set<Class<?>> importClasses) throws Exception {
+    String methodCreate(Class<?> resourceClass, RequestMappingInfo requestMappingInfo, HandlerMethod handlerMethod, Set<Class<?>> importClasses, Map<ITemplateVariableEnum, CharSequence> templateValueMap, com.beyt.generator.annotation.IntegrationTestGenerator integrationTestMethodGenerator) throws Exception {
         for (IMethodCreator methodCreator : methodCreators) {
             if (methodCreator.isAvailable(resourceClass, requestMappingInfo, handlerMethod)) {
                 try {
-                    return methodCreator.createMethod(resourceClass, requestMappingInfo, handlerMethod, importClasses);
+                    return methodCreator.createMethod(resourceClass, requestMappingInfo, handlerMethod, importClasses, templateValueMap, new IMethodCreator.CreateProperties(integrationTestMethodGenerator.ignoreMethodReturnGeneric()));
                 } catch (Exception e) {
                     throw new Exception("MethodName: " + methodCreator.name() + " failed! " + e.getMessage(), e);
                 }
