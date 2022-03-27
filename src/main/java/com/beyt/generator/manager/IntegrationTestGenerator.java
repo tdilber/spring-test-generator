@@ -8,9 +8,13 @@ import com.beyt.generator.helper.IntegrationTestTemplateHelper;
 import com.beyt.generator.mapper.EntityMapper;
 import com.beyt.generator.util.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.util.Pair;
@@ -21,7 +25,6 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -34,7 +37,7 @@ import java.util.*;
 @Slf4j
 @Service
 @Profile("dev")
-public class IntegrationTestGenerator {
+public class IntegrationTestGenerator implements ApplicationRunner {
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
     private final ApplicationContext applicationContext;
     private final RequestMappingHandlerMapping requestMappingHandlerMapping;
@@ -45,6 +48,16 @@ public class IntegrationTestGenerator {
     private final Map<Class<?>, Map<eUsageClassType, Pair<Class<?>, String>>> resourceFieldStorage = new HashMap<>();
     private final EntityManager entityManager;
     private IntegrationTestMethodGenerator integrationTestMethodGenerator;
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        Map<RequestMappingInfo, HandlerMethod> requestMappingInfoHandlerMethodMap = requestMappingHandlerMapping.getHandlerMethods();
+        com.beyt.generator.annotation.IntegrationTestGenerator integrationTestGenerator = ApplicationContextUtil.getFirstAnnotation(applicationContext, com.beyt.generator.annotation.IntegrationTestGenerator.class);
+        IntegrationTestTemplateHelper.checkFolderIsEmptyOrDeleteAll(integrationTestGenerator.outputPath(), integrationTestGenerator.deleteGenerationDirectory());
+        generateTestUtilClass(integrationTestGenerator);
+        generateIntegrationTestClasses(requestMappingInfoHandlerMethodMap, integrationTestGenerator);
+        log.info("End Of Integration Test Generate Process");
+    }
 
     public enum eUsageClassType {
         Repository,
@@ -66,21 +79,13 @@ public class IntegrationTestGenerator {
         }
     }
 
-    @PostConstruct
-    private void postConstruct() {
-        Map<RequestMappingInfo, HandlerMethod> requestMappingInfoHandlerMethodMap = requestMappingHandlerMapping.getHandlerMethods();
-        com.beyt.generator.annotation.IntegrationTestGenerator integrationTestGenerator = ApplicationContextUtil.getFirstAnnotation(applicationContext, com.beyt.generator.annotation.IntegrationTestGenerator.class);
-        IntegrationTestTemplateHelper.checkFolderIsEmptyOrDeleteAll(integrationTestGenerator.outputPath(), integrationTestGenerator.deleteGenerationDirectory());
-        generateTestUtilClass(integrationTestGenerator);
-        generateIntegrationTestClasses(requestMappingInfoHandlerMethodMap, integrationTestGenerator);
-        log.info("End Of Integration Test Generate Process");
-    }
-
     private void generateIntegrationTestClasses(Map<RequestMappingInfo, HandlerMethod> requestMappingInfoHandlerMethodMap, com.beyt.generator.annotation.IntegrationTestGenerator integrationTestGenerator) {
         Set<Class<?>> resourceClasses = new HashSet<>();
 
         requestMappingInfoHandlerMethodMap.values().forEach(m -> {
-            resourceClasses.add(m.getBeanType());
+            if (!ArrayUtils.contains(integrationTestGenerator.ignoreClasses(), m.getBeanType())) {
+                resourceClasses.add(m.getBeanType());
+            }
         });
 
 
@@ -107,7 +112,7 @@ public class IntegrationTestGenerator {
             }
             variableMap.get(eIntegrationTestVariable.BEFORE_EACH);
             String methodNamePostFix = prepareMethodNamePostfix(methodNameUniquenessMap, handlerMethod);
-            variableMap.get(eIntegrationTestVariable.CLASS_BODY).append(generateTestMethod(requestMappingInfo, handlerMethod, importClasses, resourceClass, methodNamePostFix));
+            variableMap.get(eIntegrationTestVariable.CLASS_BODY).append(generateTestMethod(requestMappingInfo, handlerMethod, importClasses, resourceClass, methodNamePostFix, integrationTestGenerator));
         });
 
         importClasses.addAll(autowireClassMap.keySet());
@@ -195,13 +200,13 @@ public class IntegrationTestGenerator {
         }
     }
 
-    public String generateTestMethod(RequestMappingInfo requestMappingInfo, HandlerMethod handlerMethod, Set<Class<?>> importClasses, Class<?> resourceClass, String methodNamePostFix) {
+    public String generateTestMethod(RequestMappingInfo requestMappingInfo, HandlerMethod handlerMethod, Set<Class<?>> importClasses, Class<?> resourceClass, String methodNamePostFix, com.beyt.generator.annotation.IntegrationTestGenerator integrationTestGenerator) {
         String result = null;
         Map<eIntegrationTestMethodVariable, String> templateValueMap = new HashMap<>();
         templateValueMap.put(eIntegrationTestMethodVariable.MethodName, handlerMethod.getMethod().getName() + methodNamePostFix);
         // Create Method (EntityDTO dto)
         try {
-            result = integrationTestMethodGenerator.methodCreate(resourceClass, requestMappingInfo, handlerMethod, importClasses);
+            result = integrationTestMethodGenerator.methodCreate(resourceClass, requestMappingInfo, handlerMethod, importClasses, (Map<ITemplateVariableEnum, CharSequence>) (Map<?, ?>) templateValueMap, integrationTestGenerator);
         } catch (Exception e) {
             templateValueMap.put(eIntegrationTestMethodVariable.WarningMessage, "Warn: While Create Method generation exception thrown!: " + e.getMessage() + " " + ExceptionUtil.getPrintStackTrace(e));
         }
@@ -261,6 +266,7 @@ public class IntegrationTestGenerator {
     }
 
     @Autowired
+    @Lazy
     public void setIntegrationTestMethodGenerator(IntegrationTestMethodGenerator integrationTestMethodGenerator) {
         this.integrationTestMethodGenerator = integrationTestMethodGenerator;
     }
