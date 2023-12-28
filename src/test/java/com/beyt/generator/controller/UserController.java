@@ -29,21 +29,21 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> addUser(@RequestBody @Valid User user) {
+    public ResponseEntity<String> addUser(@RequestBody @Valid User user) {
         userService.save(user);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("OK");
     }
 
 
     @PutMapping("{id}")
-    public ResponseEntity<Void> updateUser(@RequestBody @Valid User user, @PathVariable Long id) {
+    public ResponseEntity<String> updateUser(@RequestBody @Valid User user, @PathVariable Long id) {
         userService.updateUser(id, user);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("OK");
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("OK");
     }
 }

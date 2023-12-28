@@ -1,6 +1,7 @@
 package com.beyt.generator.util.field.helper;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.util.Random;
 
@@ -34,6 +35,6 @@ public class StringFieldHelper implements IFieldHelper<String> {
 
     @Override
     public String createGeneratorCode(String value) {
-        return "\"" + value + "\"";
+        return "\"" + StringEscapeUtils.escapeJava(value) + "\"";
     }
 }
