@@ -73,8 +73,8 @@ public class IntegrationTestGenerateManager implements ApplicationRunner {
         IntegrationTestTemplateHelper.checkFolderIsEmptyOrDeleteAll(annotation.outputPath(), annotation.deleteGenerationDirectory());
         IntegrationGenerator.Type type = annotation.generationType();
         switch (type) {
-            case MANUAL_TEST_RECORDER -> integrationGenerator = new ManualTestRecorderIntegrationGenerator(annotation);
-            case ALL_METHODS_WITH_RANDOM_VALUES -> integrationGenerator = new RandomValuesIntegrationGenerator();
+            case LIVE_TEST_RECORDER -> integrationGenerator = new ManualTestRecorderIntegrationGenerator(annotation);
+            case TEST_WITH_RANDOM_DATA_GENERATOR -> integrationGenerator = new RandomValuesIntegrationGenerator();
             default -> throw new IllegalArgumentException("Unexpected value: " + type);
         }
         integrationGenerator.start();
@@ -82,7 +82,7 @@ public class IntegrationTestGenerateManager implements ApplicationRunner {
     }
 
     public void appendLiveTest(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Method method, final Object returnValue, Object[] parameterArgs) {
-        if (integrationGenerator.type() != IntegrationGenerator.Type.MANUAL_TEST_RECORDER || Objects.isNull(methodPairMap)) {
+        if (integrationGenerator.type() != IntegrationGenerator.Type.LIVE_TEST_RECORDER || Objects.isNull(methodPairMap)) {
             return;
         }
 
@@ -126,7 +126,7 @@ public class IntegrationTestGenerateManager implements ApplicationRunner {
 
     @PreDestroy
     public void destroy() {
-        if (integrationGenerator.type() != IntegrationGenerator.Type.MANUAL_TEST_RECORDER || Objects.isNull(methodPairMap)) {
+        if (integrationGenerator.type() != IntegrationGenerator.Type.LIVE_TEST_RECORDER || Objects.isNull(methodPairMap)) {
             return;
         }
         integrationGenerator.generate();

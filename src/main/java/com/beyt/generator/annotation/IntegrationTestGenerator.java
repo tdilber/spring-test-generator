@@ -33,7 +33,7 @@ public @interface IntegrationTestGenerator {
 
     String[] recordedRequestHeaders() default {};
 
-    IntegrationGenerator.Type generationType() default IntegrationGenerator.Type.MANUAL_TEST_RECORDER;
+    IntegrationGenerator.Type generationType() default IntegrationGenerator.Type.LIVE_TEST_RECORDER;
 
     boolean deleteGenerationDirectory() default false;
 

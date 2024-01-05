@@ -23,7 +23,7 @@ public class ManualTestRecorderIntegrationGenerator implements IntegrationGenera
 
     @Override
     public Type type() {
-        return Type.MANUAL_TEST_RECORDER;
+        return Type.LIVE_TEST_RECORDER;
     }
 
     @Override

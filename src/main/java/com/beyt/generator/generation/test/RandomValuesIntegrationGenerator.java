@@ -14,7 +14,7 @@ public class RandomValuesIntegrationGenerator implements IntegrationGenerator {
 
     @Override
     public Type type() {
-        return Type.ALL_METHODS_WITH_RANDOM_VALUES;
+        return Type.TEST_WITH_RANDOM_DATA_GENERATOR;
     }
 
     @Override

@@ -11,8 +11,8 @@ public interface IntegrationGenerator {
 
     CharSequence generate();
 
-    public enum Type {
-        MANUAL_TEST_RECORDER,
-        ALL_METHODS_WITH_RANDOM_VALUES
+    enum Type {
+        LIVE_TEST_RECORDER,
+        TEST_WITH_RANDOM_DATA_GENERATOR
     }
 }
